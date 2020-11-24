@@ -1,0 +1,136 @@
+## Botnet 监控规则
+
+## 初始化 ---------------------------------------------------------------------
+
+# remove any existing rules
+-D
+
+# buffer Size
+-b 8192
+
+# failure Mode
+-f 1
+
+# Ignore errors
+-i
+
+
+## 过滤规则 ---------------------------------------------------------------------
+
+-a always,exclude -F comm=auditctl
+-a always,exclude -F msgtype=CWD
+-a always,exclude -F msgtype=PROCTITLE
+-a always,exclude -F msgtype=PATH
+-a always,exclude -F msgtype=USER_ACCT
+-a always,exclude -F msgtype=USER_START
+-a always,exclude -F msgtype=USER_END
+-a always,exclude -F msgtype=CRED_ACQ
+-a always,exclude -F msgtype=CRED_DISP
+
+
+## 读写规则 -----------------------------------------------------------------------
+
+# 监控定时任务，写、属性操作
+-w /etc/cron.d/ -p wa -k cron_d_modify
+-w /etc/cron.hourly/ -p wa -k cron_hourly_modify
+-w /var/spool/cron/ -p wa -k cron_spool_modify
+
+# 监控 host 文件，写操作
+-w /etc/hosts -p wa -k host_modify
+
+# 监控 passwd 文件，写操作
+-w /etc/passwd -p wa -k passwd_modify
+
+# 监控 /init.d 自启动目录，写操作
+-w /etc/init.d/ -p wa -k init_d_modify
+
+# 监控 LD_PRELOAD 文件，写操作
+-w /etc/ld.so.preload -p wa -k ld_preload_modify
+
+# 监控 SSH 公钥，写操作
+-w /root/.ssh/authorized_keys -p wa -k ssh_authorized_key_modify
+
+# 监控 known_hosts 文件，读操作
+-w /root/.ssh/known_hosts -p r -k know_hosts_modify
+
+
+## 执行规则 -----------------------------------------------------------------------
+
+# 监控主机信息探测行为
+
+-w /usr/bin/whoami -p x -l T1033_System_Owner_User_Discovery
+-w /bin/hostname -p x -k T1082_System_Information_Discovery
+-w /bin/uname -p x -k T1082_System_Information_Discovery
+
+-w /usr/sbin/ip -p x -k T1016_System_Network_Configuration_Discovery
+-w /usr/bin/netstat -p x -k  T1016_System_Network_Configuration_Discovery
+-w /usr/sbin/iptables -p x -k T1016_System_Network_Configuration_Discovery
+-w /usr/sbin/ifconfig -p x -k T1016_System_Network_Configuration_Discovery
+
+# 监控网络操作行为
+
+-w /usr/bin/wget -p x -k T1219_Remote_Access_Software
+-w /usr/bin/curl -p x -k T1219_Remote_Access_Software
+-w /usr/bin/ping -p x -k T1219_Remote_Access_Software
+-w /usr/bin/ssh -p x -k T1219_Remote_Access_Software
+-w /bin/nc -p x -k T1219_Remote_Access_Tools
+-w /bin/netcat -p x -k T1219_Remote_Access_Tools
+
+# 监控文件操作行为
+
+-w /usr/bin/chattr -p x -k T1222_File_And_Directory_Permissions_Modification
+-w /usr/bin/chmod -p x -k  T1222_File_And_Directory_Permissions_Modification
+
+-w /usr/bin/mkdir -p x -k  T1222_File_And_Directory_Permissions_Modification
+-w /usr/bin/cp -p x -k  T1222_File_And_Directory_Permissions_Modification
+-w /usr/bin/rm -p x -k  T1222_File_And_Directory_Permissions_Modification
+-w /usr/bin/mv -p x -k  T1222_File_And_Directory_Permissions_Modification
+
+# 监控脚本执行行为
+
+-w /bin/sh -p x -k T1059_Command_And_Scripting_Interpreter
+-w /usr/bin/sh -p x -k T1059_Command_And_Scripting_Interpreter
+
+-w /bin/bash -p x -k T1059_Command_And_Scripting_Interpreter
+-w /usr/bin/bash -p x -k T1059_Command_And_Scripting_Interpreter
+
+-w /usr/bin/perl -p x -k T1059_Command_And_Scripting_Interpreter
+-w /usr/bin/python -p x -k T1059_Command_And_Scripting_Interpreter
+
+# 监控定时任务操作行为
+
+-w /usr/sbin/cron -p x -k T1053_Scheduled_Task
+-w /usr/bin/crontab -p x -k T1053_Scheduled_Task
+
+# 监控用户操作类行为
+-w /usr/sbin/useradd -p x -k T1136_Create_Account
+
+# 监控base64行为
+-w /usr/bin/base64 -p x -k T1001_Data_Obfuscation
+
+# 监控进程类行为
+-w /usr/bin/ps -p x -k T1057_Process_Discovery
+-w /usr/bin/pgrep -p x -k T1057_Process_Discovery
+-w /usr/bin/pkill -p x -k T1078_Valid_Accounts
+-w /usr/bin/kill -p x -k T1078_Valid_Accounts
+-w /usr/bin/killall -p x -k T1078_Valid_Accounts
+
+# 监控服务类行为
+-w /usr/bin/service -p x -k T1078_Valid_Accounts
+-w /usr/bin/systemctl -p x -k T1078_Valid_Accounts
+
+# 监控安装程序类行为
+-w /usr/bin/apt -p x -k T1072_Third_Party_Software
+-w /usr/bin/apt-get -p x -k T1072_Third_Party_Software
+-w /usr/bin/dpkg -p x -k T1072_Third_Party_Software
+-w /usr/bin/rpm -p x -k T1072_Third_Party_Software
+-w /usr/bin/yum -p x -k T1072_third_party_software
+
+# 监控筛选类行为
+-w /usr/bin/echo -p x -k T1078_Valid_Accounts
+-w /usr/bin/grep -p x -k T1078_Valid_Accounts
+-w /usr/bin/xargs -p x -k T1078_Valid_Accounts
+-w /usr/bin/awk -p x -k T1078_Valid_Accounts
+
+# 监控/tmp/目录下可疑执行类行为
+-w /tmp/ -p x -k T1078_Valid_Accounts
