@@ -58,7 +58,7 @@
 
 # 监控主机信息探测行为
 
--w /usr/bin/whoami -p x -l T1033_System_Owner_User_Discovery
+-w /usr/bin/whoami -p x -k T1033_System_Owner_User_Discovery
 -w /bin/hostname -p x -k T1082_System_Information_Discovery
 -w /bin/uname -p x -k T1082_System_Information_Discovery
 
