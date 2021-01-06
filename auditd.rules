@@ -122,8 +122,6 @@
 # 监控安装程序类行为
 -w /usr/bin/apt -p x -k T1072_Third_Party_Software
 -w /usr/bin/apt-get -p x -k T1072_Third_Party_Software
--w /usr/bin/dpkg -p x -k T1072_Third_Party_Software
--w /usr/bin/rpm -p x -k T1072_Third_Party_Software
 -w /usr/bin/yum -p x -k T1072_third_party_software
 
 # 监控筛选类行为
